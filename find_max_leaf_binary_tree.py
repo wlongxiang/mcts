@@ -2,6 +2,7 @@ import random
 from random import choice
 
 from monte_carlo_tree_search import MCTS
+import argparse
 
 
 class Node:
@@ -65,21 +66,29 @@ def make_bintree(depth=12):
     return root, leaf_nodes_dict
 
 
-def play_game(num_sim):
-    mcts = MCTS(exploration_weight=1)
-    root, leaf_nodes_dict = make_bintree(depth=12)
+def main(args):
+    mcts = MCTS(exploration_weight=args.exploration_weight)
+    root, leaf_nodes_dict = make_bintree(depth=args.depth)
     leaf_nodes_dict_sorted = sorted(leaf_nodes_dict.items(), key=lambda x: x[1], reverse=True)
-    print("top 3 leaf nodes:", leaf_nodes_dict_sorted[:3])
+    print("Expected optimal (max) leaf node: {}, value: {}".format(leaf_nodes_dict_sorted[0][0],
+                                                                   leaf_nodes_dict_sorted[0][1]))
+
     while True:
-        # You can train as you go, or only at the beginning.
-        # Here, we train as we go, doing fifty rollouts each turn.
-        for _ in range(num_sim):
-            mcts.do_rollout(root)
+        # we run MCTS simulation for many times
+        for _ in range(args.num_sim):
+            mcts.run(root)
+        # we choose the best greedy action based on simulation results
         root = mcts.choose(root)
+        # we repeat until root is terminal
         if root.is_terminal():
-            print("found optimal leaf node: {}, value: {}".format(root, root.value))
+            print("Found optimal (max) leaf node: {}, value: {}".format(root, root.value))
             break
 
 
 if __name__ == '__main__':
-    play_game(100)
+    parser = argparse.ArgumentParser(description='MCTS main runner')
+    parser.add_argument("--num_sim", type=int, default=100, help="number of simulations during rollout")
+    parser.add_argument("--depth", type=int, default=12, help="number of depth of the binary tree")
+    parser.add_argument("--exploration_weight", type=float, default=1.0, help="exploration weight, c number in UCT")
+    args = parser.parse_args()
+    main(args)
