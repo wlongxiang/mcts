@@ -41,7 +41,7 @@ class Node:
         return self.value
 
 
-def make_bintree(depth=12):
+def make_binary_tree(depth=12):
     all_nodes = []
     for i in range(depth + 1):
         nodes_at_depth = []
@@ -68,7 +68,7 @@ def make_bintree(depth=12):
 
 def main(args):
     mcts = MCTS(exploration_weight=args.exploration_weight)
-    root, leaf_nodes_dict = make_bintree(depth=args.depth)
+    root, leaf_nodes_dict = make_binary_tree(depth=args.depth)
     leaf_nodes_dict_sorted = sorted(leaf_nodes_dict.items(), key=lambda x: x[1], reverse=True)
     print("Expected optimal (max) leaf node: {}, value: {}".format(leaf_nodes_dict_sorted[0][0],
                                                                    leaf_nodes_dict_sorted[0][1]))
