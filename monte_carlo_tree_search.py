@@ -11,10 +11,10 @@ import math
 class MCTS:
     "Monte Carlo tree searcher. First rollout the tree then choose a move."
 
-    def __init__(self, exploration_weight=1):
+    def __init__(self, exploration_weight=1.0):
         self.Q = defaultdict(float)  # total reward of each node
         self.N = defaultdict(float)  # total visit count for each node
-        self.children = dict()  # children of each node
+        self.children = dict()  # children of each node: key is explored node, value is set of children
         self.exploration_weight = exploration_weight
 
     def choose(self, node):
@@ -33,14 +33,14 @@ class MCTS:
         return max(self.children[node], key=score)
 
     def run(self, node):
-        "Make the tree one layer better. (Train for one iteration.)"
-        path = self._select(node)
+        "Run on iteration of select -> expand -> simulation(rollout) -> backup"
+        path = self.select(node)
         leaf = path[-1]
-        self._expand(leaf)
-        reward = self._simulate(leaf)
-        self._backpropagate(path, reward)
+        self.expand(leaf)
+        reward = self.simulate(leaf)
+        self.backup(path, reward)
 
-    def _select(self, node):
+    def select(self, node):
         "Find an unexplored descendent of `node`"
         path = []
         while True:
@@ -55,20 +55,20 @@ class MCTS:
                 return path
             node = self._uct_select(node)  # descend a layer deeper
 
-    def _expand(self, node):
+    def expand(self, node):
         "Update the `children` dict with the children of `node`"
         if node in self.children:
             return  # already expanded
         self.children[node] = node.find_children()
 
-    def _simulate(self, node):
-        "Returns the reward for a random simulation (to completion) of `node`"
+    def simulate(self, node):
+        "Run a random simulation from node as starting point"
         while True:
             if node.is_terminal():
                 return node.reward()
             node = node.find_random_child()
 
-    def _backpropagate(self, path, reward):
+    def backup(self, path, reward):
         "Send the reward back up to the ancestors of the leaf"
         for node in reversed(path):
             self.N[node] += 1
@@ -78,14 +78,17 @@ class MCTS:
         "Select a child of node, balancing exploration & exploitation"
 
         # All children of node should already be expanded:
-        assert all(n in self.children for n in self.children[node])
+        # a node is fully expanded if and only if all children are explored
+        is_all_children_expanded = all(n in self.children for n in self.children[node])
+        if not is_all_children_expanded:
+            raise ValueError("Can only select fom fully expanded node")
 
-        log_N_vertex = math.log(self.N[node])
+        log_N_parent = math.log(self.N[node])
 
         def uct(n):
             "Upper confidence bound for trees"
             return self.Q[n] / self.N[n] + self.exploration_weight * math.sqrt(
-                log_N_vertex / self.N[n]
+                log_N_parent / self.N[n]
             )
 
         return max(self.children[node], key=uct)
