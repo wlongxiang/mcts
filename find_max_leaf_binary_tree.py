@@ -70,17 +70,18 @@ def make_binary_tree(depth=12):
     return root, leaf_nodes_dict
 
 
-def main(args):
-    mcts = MCTS(exploration_weight=args.exploration_weight)
-    root, leaf_nodes_dict = make_binary_tree(depth=args.depth)
+def mcts_playout(depth, num_iter, num_rollout, exploration_weight):
+    root, leaf_nodes_dict = make_binary_tree(depth=depth)
     leaf_nodes_dict_sorted = sorted(leaf_nodes_dict.items(), key=lambda x: x[1], reverse=True)
     print("Expected optimal (max) leaf node: {}, value: {}".format(leaf_nodes_dict_sorted[0][0],
                                                                    leaf_nodes_dict_sorted[0][1]))
 
+    mcts = MCTS(exploration_weight=exploration_weight)
+
     while True:
         # we run MCTS simulation for many times
-        for _ in range(args.num_iter):
-            mcts.run(root, num_rollout=args.num_rollout)
+        for _ in range(num_iter):
+            mcts.run(root, num_rollout=num_rollout)
         # we choose the best greedy action based on simulation results
         root = mcts.choose(root)
         # we repeat until root is terminal
@@ -97,4 +98,4 @@ if __name__ == '__main__':
     parser.add_argument("--depth", type=int, default=12, help="number of depth of the binary tree")
     parser.add_argument("--exploration_weight", type=float, default=1.0, help="exploration weight, c number in UCT")
     args = parser.parse_args()
-    main(args)
+    mcts_playout(args.depth, args.num_iter, args.num_rollout, args.exploration_weight)
