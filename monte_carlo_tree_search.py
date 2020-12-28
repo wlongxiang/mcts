@@ -30,12 +30,14 @@ class MCTS:
 
         return max(self.children[node], key=score)
 
-    def run(self, node):
+    def run(self, node, num_rollout):
         "Run on iteration of select -> expand -> simulation(rollout) -> backup"
         path = self.select(node)
         leaf = path[-1]
         self.expand(leaf)
-        reward = self.simulate(leaf)
+        reward = 0
+        for i in range(num_rollout):
+            reward += self.simulate(leaf)
         self.backup(path, reward)
 
     def select(self, node):

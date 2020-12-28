@@ -75,8 +75,8 @@ def main(args):
 
     while True:
         # we run MCTS simulation for many times
-        for _ in range(args.num_sim):
-            mcts.run(root)
+        for _ in range(args.num_iter):
+            mcts.run(root, num_rollout=args.num_rollout)
         # we choose the best greedy action based on simulation results
         root = mcts.choose(root)
         # we repeat until root is terminal
@@ -87,7 +87,9 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='MCTS main runner')
-    parser.add_argument("--num_sim", type=int, default=100, help="number of simulations during rollout")
+    parser.add_argument("--num_iter", type=int, default=50,
+                        help="number of MCTS iterations starting from a specific root node")
+    parser.add_argument("--num_rollout", type=int, default=5, help="number of rollout simulations in a MCTS iteration")
     parser.add_argument("--depth", type=int, default=12, help="number of depth of the binary tree")
     parser.add_argument("--exploration_weight", type=float, default=1.0, help="exploration weight, c number in UCT")
     args = parser.parse_args()
