@@ -100,7 +100,7 @@ class GridworldEnv(discrete.DiscreteEnv):
                     next_state_right = s + 1
 
                 # next_state_down = s if y == (MAX_Y - 1) else s + MAX_X
-                if y == (MAX_Y - 1) or (y == 0 and x in [2, 3, 4, 5, 6]) or (y == 7 and x in [1, 2, 3, 4]):
+                if y == (MAX_Y - 1) or (y == 0 and x in [2, 3, 4, 5, 6]) or (y == 6 and x in [1, 2, 3, 4]):
                     next_state_down = s
                 else:
                     next_state_down = s + MAX_X
