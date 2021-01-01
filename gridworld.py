@@ -9,6 +9,12 @@ RIGHT = 1
 DOWN = 2
 LEFT = 3
 
+ARROWS = {
+    UP: " ↑ ",
+    RIGHT: " → ",
+    DOWN: " ↓ ",
+    LEFT: " ← ",
+}
 
 class GridworldEnv(discrete.DiscreteEnv):
     """
@@ -78,7 +84,7 @@ class GridworldEnv(discrete.DiscreteEnv):
                 reward = -1.0
 
             # We're stuck in a terminal state
-            if self.is_terminal(s):
+            if s == self.snake_pit_state:
                 P[s][UP] = [(1.0, s, reward, True)]
                 P[s][RIGHT] = [(1.0, s, reward, True)]
                 P[s][DOWN] = [(1.0, s, reward, True)]
@@ -121,8 +127,15 @@ class GridworldEnv(discrete.DiscreteEnv):
         # Initial state distribution is uniform
         isd = np.ones(nS) / nS
 
-        # We expose the model of the environment for educational purposes
-        # This should not be used in any model-free learning algorithm
+        # the states surrounding snake pit
+        P[self.snake_pit_state + 9][UP] = [(1.0, self.snake_pit_state, -50.0, True)]
+        P[self.snake_pit_state - 1][RIGHT] = [(1.0, self.snake_pit_state, -50.0, True)]
+        P[self.snake_pit_state - 9][DOWN] = [(1.0, self.snake_pit_state, -50.0, True)]
+        P[self.snake_pit_state + 1][LEFT] = [(1.0, self.snake_pit_state, -50.0, True)]
+
+        # the states surrounding treasure point
+        P[self.treasure_state - 1][RIGHT] = [(1.0, self.treasure_state, 50.0, True)]
+        P[self.treasure_state - 9][DOWN] = [(1.0, self.treasure_state, 50.0, True)]
         self.P = P
 
         super(GridworldEnv, self).__init__(nS, nA, P, isd)
@@ -162,3 +175,35 @@ class GridworldEnv(discrete.DiscreteEnv):
                 outfile.write("\n")
 
             it.iternext()
+        print("\n")
+
+    def plot_q_value(self, Q):
+        outfile = sys.stdout
+
+        grid = np.arange(self.nS).reshape(self.shape)
+        it = np.nditer(grid, flags=['multi_index'])
+        while not it.finished:
+            s = it.iterindex
+            y, x = it.multi_index
+
+            if self.is_terminal(s):
+                output = " T "
+            elif s in self.wall_states:
+                output = " W "
+            else:
+                # output = " o "
+                best_action = max(Q[s].items(), key=lambda a: a[1])[0]
+                output = ARROWS[best_action]
+
+            if x == 0:
+                output = output.lstrip()
+            if x == self.shape[1] - 1:
+                output = output.rstrip()
+
+            outfile.write(output)
+
+            if x == self.shape[1] - 1:
+                outfile.write("\n")
+
+            it.iternext()
+        print("\n")
