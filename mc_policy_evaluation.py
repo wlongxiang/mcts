@@ -9,20 +9,19 @@ from gridworld import GridworldEnv
 def mc_policy_evaluation_random_policy(env, num_episodes=1000):
     # Start with an all 0 value function
     V = defaultdict(float)
+    for _s in env.P:
+        V[_s] = 0.0
     returns = defaultdict(list)  # an empty list for each state
     for i in range(num_episodes):
         episodes = []
         # init_state = choice(list(set(env.P.keys()) - set(env.wall_states)))  # draw a random state to start, exc. wall
         init_state = choice(list(set(env.P.keys())))  # draw a random state to start, exc. wall
         # generate an episode
-        while True:
-
+        while not env.is_terminal(init_state):
             action = choice(list(env.P[init_state].keys()))  # random policy such that draw an action randomly
             next_state = env.P[init_state][action][0][1]
             reward = env.P[init_state][action][0][2]
             episodes.append([init_state, action, reward])
-            if env.is_terminal(init_state):
-                break
             init_state = next_state
         G = 0
         states_seen = set()
@@ -32,11 +31,11 @@ def mc_policy_evaluation_random_policy(env, num_episodes=1000):
                 states_seen.add(S)
                 returns[S].append(G)
                 V[S] = np.mean(returns[S])
+        # print(V)
     # terminal states have return 0 always
-    V[env.treasure_state] = 0.0
-    V[env.snake_pit_state] = 0.0
+    # V[env.treasure_state] = 0.0
+    # V[env.snake_pit_state] = 0.0
 
-    assert len(V) == env.nS  # at least each state needs to be at least estimated once
     V_sorted = sorted(V.items(), key=lambda x: x[0])  # sort by state
     return V_sorted
 

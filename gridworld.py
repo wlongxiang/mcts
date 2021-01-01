@@ -92,7 +92,7 @@ class GridworldEnv(discrete.DiscreteEnv):
             # Not a terminal state
             else:
                 # next_state_up = s if y == 0 else s - MAX_X
-                if y == 0 or (y == 2 and x in [2, 3, 4, 5, 6]) or (y == 8 and x in [1, 2, 3, 4]):
+                if y == 0 or (y == 2 and x in [2, 3, 4, 5, 6]) or (y == 8 and x in [1, 2, 3, 4]) or (y == 6 and x == 6):
                     # we are below the wall or below boundary
                     next_state_up = s
                 else:
