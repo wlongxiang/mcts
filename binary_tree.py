@@ -6,7 +6,6 @@ class Node:
     def __init__(self, node_id=None):
         self.left = None
         self.right = None
-        # assign a random value in [0. 100] to the end nodes as reward
         self.node_id = node_id
         self.value = None
 
@@ -32,7 +31,6 @@ class Node:
             return []
         return [self.left, self.right]
 
-
     def find_random_child(self):
         if self.is_terminal():
             return None
@@ -47,9 +45,6 @@ class Node:
 
 def make_binary_tree(depth=12):
     all_nodes = []
-    # fix seed to make sure we get the same leaf values always
-    # unseed in the end to enable MCTS has its exploration results random
-    # random.seed(123)
     for i in range(depth + 1):
         nodes_at_depth = []
         num_of_nodes = pow(2, i)
@@ -70,5 +65,4 @@ def make_binary_tree(depth=12):
                 n.left = left
                 n.right = right
     root = all_nodes[0][0]
-    # random.seed()
     return root, leaf_nodes_dict

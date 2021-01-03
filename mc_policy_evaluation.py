@@ -14,8 +14,7 @@ def mc_policy_evaluation_random_policy(env, num_episodes=1000):
     returns = defaultdict(list)  # an empty list for each state
     for i in range(num_episodes):
         episodes = []
-        # init_state = choice(list(set(env.P.keys()) - set(env.wall_states)))  # draw a random state to start, exc. wall
-        init_state = choice(list(set(env.P.keys())))  # draw a random state to start, exc. wall
+        init_state = choice(list(set(env.P.keys())))  # draw a random state to start
         # generate an episode
         while not env.is_terminal(init_state):
             action = choice(list(env.P[init_state].keys()))  # random policy such that draw an action randomly
@@ -31,11 +30,6 @@ def mc_policy_evaluation_random_policy(env, num_episodes=1000):
                 states_seen.add(S)
                 returns[S].append(G)
                 V[S] = np.mean(returns[S])
-        # print(V)
-    # terminal states have return 0 always
-    # V[env.treasure_state] = 0.0
-    # V[env.snake_pit_state] = 0.0
-
     V_sorted = sorted(V.items(), key=lambda x: x[0])  # sort by state
     return V_sorted
 
