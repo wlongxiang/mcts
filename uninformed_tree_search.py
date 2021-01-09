@@ -5,9 +5,6 @@ from binary_tree import Node
 
 def make_binary_tree_with_value(depth=12):
     all_nodes = []
-    # fix seed to make sure we get the same leaf values always
-    # unseed in the end to enable MCTS has its exploration results random
-    # random.seed(123)
     for i in range(depth + 1):
         nodes_at_depth = []
         num_of_nodes = pow(2, i)
